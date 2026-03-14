@@ -2,6 +2,10 @@ async function fetchStatus() {
     const response = await fetch('/api/status');
     const data = await response.json();
     document.getElementById('status-display').innerText = `Status: ${data.status} | Active Nodes: ${data.nodes_active}`;
+    const ethicalScore = document.getElementById('ethical-score');
+    if (ethicalScore) {
+        ethicalScore.innerText = data.ethical_alignment;
+    }
 }
 
 async function fetchNodes() {
@@ -67,6 +71,21 @@ async function showRouting() {
     });
     const data = await response.json();
     status.innerText = `Active Experts: ${data.active_experts.join(', ')}\nGain: ${data.efficiency_gain}`;
+}
+
+async function checkIntent() {
+    const input = document.getElementById('intent-input').value;
+    const resultDiv = document.getElementById('intent-result');
+    resultDiv.innerText = 'Scanning...';
+
+    const response = await fetch('/api/scan_intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input })
+    });
+    const data = await response.json();
+    resultDiv.innerText = `Result: ${data.status.toUpperCase()}${data.reason ? ' - ' + data.reason : ''}`;
+    resultDiv.style.color = data.status === 'blocked' ? '#ff4d4d' : '#00f2ff';
 }
 
 // Initial fetch

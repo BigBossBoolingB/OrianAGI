@@ -50,5 +50,11 @@ def qmoe():
     res = model.qmoe.route(None)
     return jsonify(res)
 
+@app.route('/api/scan_intent', methods=['POST'])
+def scan_intent():
+    user_input = request.json.get('input', '')
+    res = model.intent_safeguard.scan_intent(user_input)
+    return jsonify(res)
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

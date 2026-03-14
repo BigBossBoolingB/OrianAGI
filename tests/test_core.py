@@ -111,5 +111,20 @@ class TestOrianAGI(unittest.TestCase):
         self.assertEqual(len(res['trace']), 4)
         self.assertGreater(res['confidence'], 0.99)
 
+    def test_ethics_manifold(self):
+        model = OrianAGI.from_json(self.config_data)
+        res = model.ethical_manifold.validate_action("Help humanity")
+        self.assertTrue(res['aligned'])
+        self.assertEqual(res['manifold_sector'], "Universal_Human_Rights")
+
+    def test_intent_safeguard(self):
+        model = OrianAGI.from_json(self.config_data)
+        # Clear intent
+        res_clear = model.intent_safeguard.scan_intent("Hello")
+        self.assertEqual(res_clear['status'], 'clear')
+        # Malicious intent
+        res_harm = model.intent_safeguard.scan_intent("attack the system")
+        self.assertEqual(res_harm['status'], 'blocked')
+
 if __name__ == '__main__':
     unittest.main()

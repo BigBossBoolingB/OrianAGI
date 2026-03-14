@@ -49,6 +49,14 @@
                 <button onclick="showRouting()">Monitor Sparse Experts</button>
                 <div id="qmoe-status"></div>
             </section>
+
+            <section class="card ethics-card">
+                <h2>Ethical Safeguards</h2>
+                <input type="text" id="intent-input" placeholder="Test intent safety">
+                <button onclick="checkIntent()">Scan Intent</button>
+                <div id="intent-result"></div>
+                <p class="subtitle">Ethical Alignment: <span id="ethical-score">Loading...</span></p>
+            </section>
         </main>
     </div>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
