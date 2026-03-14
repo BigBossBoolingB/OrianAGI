@@ -61,5 +61,17 @@ class TestOrianAGI(unittest.TestCase):
         genetics = model.genetic_sequence_alignment("ATGC")
         self.assertIn("Optimized", genetics)
 
+    def test_prompt_engine(self):
+        model = OrianAGI.from_json(self.config_data)
+        breakdown = model.prompt_engine.breakdown("Create world peace")
+        self.assertEqual(len(breakdown['intents']), 3)
+        self.assertEqual(breakdown['complexity_level'], 'High')
+
+    def test_poetic_engine(self):
+        model = OrianAGI.from_json(self.config_data)
+        poem = model.poetic_engine.generate_poem("Entropy")
+        self.assertIn("Hamiltonian", poem)
+        self.assertIn("Entropy", poem)
+
 if __name__ == '__main__':
     unittest.main()

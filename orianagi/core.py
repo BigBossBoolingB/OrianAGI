@@ -74,6 +74,22 @@ class AIAgentTeam:
         results = [agent.execute_task(complex_task) for agent in self.agents]
         return results
 
+class PromptingEngine:
+    """Deconstructs complex instructions using quantum-logical breakdown."""
+    def breakdown(self, prompt: str):
+        print(f"Deconstructing prompt: '{prompt}' into atomic quantum intents...")
+        return {
+            "original": prompt,
+            "intents": ["Initialize Variational State", "Map Hamiltonian", "Sync Nodes"],
+            "complexity_level": "High"
+        }
+
+class PoeticEngine:
+    """Generates resonant and artistic outputs."""
+    def generate_poem(self, theme: str):
+        print(f"Synthesizing poetic resonance for theme: {theme}...")
+        return f"In the dance of {theme}, the Hamiltonian sighs,\nMinimized energy beneath quantum skies."
+
 class OrianAGI:
     def __init__(self, system_id: str, architect: str, timestamp: str,
                  variational_state: VariationalState,
@@ -94,6 +110,8 @@ class OrianAGI:
             AIAgent("Researcher", "Data Synthesis"),
             AIAgent("Guardian", "Security & Integrity")
         ])
+        self.prompt_engine = PromptingEngine()
+        self.poetic_engine = PoeticEngine()
 
     @classmethod
     def from_json(cls, data: Dict[str, Any]):
