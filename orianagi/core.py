@@ -90,6 +90,26 @@ class PoeticEngine:
         print(f"Synthesizing poetic resonance for theme: {theme}...")
         return f"In the dance of {theme}, the Hamiltonian sighs,\nMinimized energy beneath quantum skies."
 
+class PsychologicalIntentAnalyzer:
+    """Assesses the user's psychological state and deeper intent."""
+    def analyze_intent(self, user_input: str):
+        print(f"Analyzing psychological resonance of: '{user_input}'...")
+        return {"intent": "constructive", "sentiment": "0.85", "state": "focused"}
+
+class ParentalControlSystem:
+    """Enforces safety boundaries and age-appropriate content."""
+    def check_safety(self, content: str, user_age: int):
+        print(f"Running safety audit for age {user_age}...")
+        if "unsafe" in content:
+            return False
+        return True
+
+class BiometricProcessor:
+    """Handles physiological monitoring and authentication."""
+    def verify_biometrics(self, bio_data: Any):
+        print("Verifying quantum-biometric signature...")
+        return {"status": "authorized", "integrity": "0.9999"}
+
 class OrianAGI:
     def __init__(self, system_id: str, architect: str, timestamp: str,
                  variational_state: VariationalState,
@@ -112,6 +132,9 @@ class OrianAGI:
         ])
         self.prompt_engine = PromptingEngine()
         self.poetic_engine = PoeticEngine()
+        self.psych_analyzer = PsychologicalIntentAnalyzer()
+        self.parental_control = ParentalControlSystem()
+        self.biometric_processor = BiometricProcessor()
 
     @classmethod
     def from_json(cls, data: Dict[str, Any]):

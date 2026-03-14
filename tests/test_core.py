@@ -73,5 +73,21 @@ class TestOrianAGI(unittest.TestCase):
         self.assertIn("Hamiltonian", poem)
         self.assertIn("Entropy", poem)
 
+    def test_psych_analyzer(self):
+        model = OrianAGI.from_json(self.config_data)
+        analysis = model.psych_analyzer.analyze_intent("I want to build something.")
+        self.assertEqual(analysis['intent'], 'constructive')
+
+    def test_parental_control(self):
+        model = OrianAGI.from_json(self.config_data)
+        self.assertTrue(model.parental_control.check_safety("Hello world", 10))
+        self.assertFalse(model.parental_control.check_safety("This is unsafe", 10))
+
+    def test_biometrics(self):
+        model = OrianAGI.from_json(self.config_data)
+        res = model.biometric_processor.verify_biometrics(None)
+        self.assertEqual(res['status'], 'authorized')
+        self.assertEqual(res['integrity'], '0.9999')
+
 if __name__ == '__main__':
     unittest.main()

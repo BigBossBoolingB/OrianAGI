@@ -24,6 +24,9 @@ OrianAGI surpasses models like Google Gemini and GPT-4 through:
 - [AI Agent Teams](docs/agent_teams.md)
 - [Advanced Prompting](docs/prompting.md)
 - [Poetic Resonance](docs/poetics.md)
+- [Psychological Intent](docs/psychological_intent.md)
+- [Parental Controls](docs/parental_controls.md)
+- [Biometric Security](docs/biometrics.md)
 - [Quantum Logic](docs/quantum_logic.md)
 - [Architecture Details](docs/architecture.md)
 
