@@ -21,6 +21,7 @@ OrianAGI surpasses models like Google Gemini and GPT-4 through:
 - [Competitive Benchmarks](docs/benchmarks.md)
 - [Multi-Modal Features](docs/multimodal.md)
 - [World Model](docs/world_model.md)
+- [Dashboard UI](docs/ui.md)
 - [AI Agent Teams](docs/agent_teams.md)
 - [Advanced Prompting](docs/prompting.md)
 - [Poetic Resonance](docs/poetics.md)

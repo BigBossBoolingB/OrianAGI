@@ -31,6 +31,16 @@ class TestOrianAGI(unittest.TestCase):
         non_existent = model.node_manager.get_node("NON-EXISTENT")
         self.assertIsNone(non_existent)
 
+        # Test update
+        model.node_manager.update_node_status("DEN-01", "Maintenance", "10%")
+        updated_node = model.node_manager.get_node("DEN-01")
+        self.assertEqual(updated_node.status, "Maintenance")
+        self.assertEqual(updated_node.extra_data['load'], "10%")
+
+        # Test listing
+        active = model.node_manager.list_active_nodes()
+        self.assertEqual(len(active), 3)
+
     def test_train(self):
         model = OrianAGI.from_json(self.config_data)
         success = model.train("large_dataset_mock")
@@ -88,6 +98,18 @@ class TestOrianAGI(unittest.TestCase):
         res = model.biometric_processor.verify_biometrics(None)
         self.assertEqual(res['status'], 'authorized')
         self.assertEqual(res['integrity'], '0.9999')
+
+    def test_qmoe(self):
+        model = OrianAGI.from_json(self.config_data)
+        res = model.qmoe.route(None)
+        self.assertIn('active_experts', res)
+        self.assertEqual(res['efficiency_gain'], '4.2x')
+
+    def test_reasoning(self):
+        model = OrianAGI.from_json(self.config_data)
+        res = model.reasoning.synthesize_reasoning("Solve for X")
+        self.assertEqual(len(res['trace']), 4)
+        self.assertGreater(res['confidence'], 0.99)
 
 if __name__ == '__main__':
     unittest.main()

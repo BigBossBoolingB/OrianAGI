@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrianAGI Genesis Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>OrianAGI Genesis</h1>
+            <p class="subtitle">System ID: {{ model.system_id }} | Architect: {{ model.architect }}</p>
+        </header>
+
+        <main class="dashboard">
+            <section class="card status-card">
+                <h2>System Status</h2>
+                <div id="status-display">Loading...</div>
+            </section>
+
+            <section class="card nodes-card">
+                <h2>Active Quantum Nodes</h2>
+                <ul id="nodes-list"></ul>
+            </section>
+
+            <section class="card poetic-card">
+                <h2>Poetic Resonance Engine</h2>
+                <input type="text" id="poetic-theme" placeholder="Enter theme (e.g. Entropy)">
+                <button onclick="generatePoem()">Resonate</button>
+                <div id="poem-output"></div>
+            </section>
+
+            <section class="card train-card">
+                <h2>Training Command</h2>
+                <button onclick="startTraining()">Initiate Large-Scale Training</button>
+                <div id="train-status"></div>
+            </section>
+
+            <section class="card reasoning-card">
+                <h2>Deep Reasoning Engine</h2>
+                <input type="text" id="reasoning-query" placeholder="Enter logical problem">
+                <button onclick="startReasoning()">Analyze Logic</button>
+                <div id="reasoning-output"></div>
+            </section>
+
+            <section class="card qmoe-card">
+                <h2>QMoE Routing</h2>
+                <button onclick="showRouting()">Monitor Sparse Experts</button>
+                <div id="qmoe-status"></div>
+            </section>
+        </main>
+    </div>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
