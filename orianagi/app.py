@@ -1,13 +1,16 @@
 from flask import Flask, render_template, jsonify, request
 import json
 import os
+from werkzeug.middleware.proxy_fix import ProxyFix
 from .core import OrianAGI, logger
 
 app = Flask(__name__)
+# Trust proxy headers (Cloud Run / reverse proxies)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
 
 # Production configuration
 DEBUG = os.environ.get("ORIANAGI_DEBUG", "False").lower() == "true"
-PORT = int(os.environ.get("ORIANAGI_PORT", 5000))
+PORT = int(os.environ.get("PORT") or os.environ.get("ORIANAGI_PORT", 5000))
 
 STATUS_JSON = {
   "collective_state": {
@@ -52,30 +55,64 @@ STATUS_JSON = {
 }
 
 # Load model
-CONFIG_PATH = os.environ.get(
-    "ORIANAGI_CONFIG", os.path.join(os.path.dirname(__file__), "..", "system_config.json")
-)
+# Resolve configuration path with fallbacks for different runtimes (local, container, CI)
+
+def _resolve_config_path():
+    env_path = os.environ.get("ORIANAGI_CONFIG")
+    candidates = []
+    if env_path:
+        candidates.append(env_path)
+    # Project root relative to package directory
+    candidates.append(os.path.join(os.path.dirname(__file__), "..", "system_config.json"))
+    # Current working directory fallback
+    candidates.append(os.path.join(os.getcwd(), "system_config.json"))
+    for p in candidates:
+        if os.path.isfile(p):
+            return p
+    # Default to first candidate if nothing exists to preserve error behavior below
+    return candidates[0] if candidates else None
+
+CONFIG_PATH = _resolve_config_path()
 try:
     with open(CONFIG_PATH, "r") as f:
         config = json.load(f)
     model = OrianAGI.from_json(config)
-except FileNotFoundError:
-    logger.error(f"Config file not found at {CONFIG_PATH}")
-    raise
+except (FileNotFoundError, json.JSONDecodeError, KeyError) as e:
+    logger.error(f"Config load failed ({e.__class__.__name__}): {e}. Tried path: {CONFIG_PATH}")
+    model = None
+
+
+# Helper: ensure model is available for API endpoints
+
+def _require_model_response():
+    if model is None:
+        return jsonify({"error": "model not initialized", "status": "starting"}), 503
+    return None
 
 
 @app.route("/")
 def index():
+    if model is None:
+        return "Service initializing", 503
     return render_template("index.html", model=model)
 
 
 @app.route("/api/status")
 def status():
-    return jsonify(STATUS_JSON)
+    if model is None:
+        # Minimal readiness hint for external load balancers
+        return jsonify({"status": "starting"}), 503
+    # Merge model metadata expected by tests with the existing STATUS_JSON payload
+    merged = {"system_id": model.system_id}
+    merged.update(STATUS_JSON)
+    return jsonify(merged)
 
 
 @app.route("/api/nodes")
 def nodes():
+    guard = _require_model_response()
+    if guard:
+        return guard
     nodes_data = [
         {
             "id": n.id,
@@ -90,6 +127,9 @@ def nodes():
 
 @app.route("/api/poetic", methods=["POST"])
 def poetic():
+    guard = _require_model_response()
+    if guard:
+        return guard
     theme = request.json.get("theme", "Quantum")
     poem = model.poetic_engine.generate_poem(theme)
     return jsonify({"poem": poem})
@@ -97,6 +137,9 @@ def poetic():
 
 @app.route("/api/train", methods=["POST"])
 def train():
+    guard = _require_model_response()
+    if guard:
+        return guard
     dataset = request.json.get("dataset", "standard")
     model.train(dataset)
     return jsonify({"status": "Training initiated"})
@@ -104,6 +147,9 @@ def train():
 
 @app.route("/api/reason", methods=["POST"])
 def reason():
+    guard = _require_model_response()
+    if guard:
+        return guard
     query = request.json.get("query", "")
     res = model.reasoning.synthesize_reasoning(query)
     return jsonify(res)
@@ -111,15 +157,34 @@ def reason():
 
 @app.route("/api/qmoe", methods=["POST"])
 def qmoe():
+    guard = _require_model_response()
+    if guard:
+        return guard
     res = model.qmoe.route(None)
     return jsonify(res)
 
 
 @app.route("/api/scan_intent", methods=["POST"])
 def scan_intent():
+    guard = _require_model_response()
+    if guard:
+        return guard
     user_input = request.json.get("input", "")
     res = model.intent_safeguard.scan_intent(user_input)
     return jsonify(res)
+
+
+# Health and readiness probes
+@app.route("/healthz")
+def healthz():
+    return ("ok", 200)
+
+
+@app.route("/readinessz")
+def readinessz():
+    if model is None:
+        return ("starting", 503)
+    return ("ready", 200)
 
 
 if __name__ == "__main__":

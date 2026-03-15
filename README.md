@@ -42,6 +42,54 @@ OrianAGI surpasses models like Google Gemini, Llama 3, DeepSeek, and GPT-4 throu
 - [Quantum Logic](docs/quantum_logic.md)
 - [Architecture Details](docs/architecture.md)
 
+## Local Development
+
+- Create env and install deps
+  - python3 -m venv .venv && . .venv/bin/activate
+  - pip install -r requirements.txt
+- Run tests
+  - python -m unittest discover -v
+- Run the app (development)
+  - python -c "from orianagi.app import app; app.run(host='0.0.0.0', port=8080)"
+
+## Containerized Production (Cloud Run)
+
+1. Build the image
+   - gcloud builds submit --tag gcr.io/PROJECT_ID/orianagi
+2. Deploy to Cloud Run
+   - gcloud run deploy orianagi \
+       --image gcr.io/PROJECT_ID/orianagi \
+       --region REGION \
+       --allow-unauthenticated \
+       --port 8080
+3. Verify service URL works
+
+## Firebase Hosting Integration
+
+Add a rewrite in firebase.json to route all app traffic to the Cloud Run service:
+
+{
+  "hosting": {
+    "public": "public",
+    "rewrites": [
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "orianagi",
+          "region": "REGION"
+        }
+      }
+    ]
+  }
+}
+
+Then deploy Hosting:
+- firebase deploy --only hosting
+
+Notes:
+- The app now binds to the standard PORT environment variable used by Cloud Run (with ORIANAGI_PORT as an optional override).
+- requirements.txt has been slimmed to Flask only to reduce cold starts. Re-add heavy packages in a dev extras file if needed.
+
 ## License
 
 Distributed under the Apache License 2.0.

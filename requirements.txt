@@ -1,3 +1,2 @@
-flask
-numpy
-biopython
+flask>=2.2,<3
+gunicorn>=21,<22
