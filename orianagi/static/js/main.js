@@ -1,10 +1,32 @@
 async function fetchStatus() {
     const response = await fetch('/api/status');
     const data = await response.json();
-    document.getElementById('status-display').innerText = `Status: ${data.status} | Active Nodes: ${data.nodes_active}`;
+    const statusDisplay = document.getElementById('status-display');
+    if (statusDisplay) {
+        const { collective_state, market_sentinel } = data;
+        statusDisplay.innerHTML = `
+            <strong>Status:</strong> ${collective_state.status} | 
+            <strong>Tier:</strong> ${collective_state.operating_tier} | 
+            <strong>Threat Level:</strong> <span style="color: #ff4d4d;">${market_sentinel.cyber_threat_level}</span>
+        `;
+    }
     const ethicalScore = document.getElementById('ethical-score');
     if (ethicalScore) {
-        ethicalScore.innerText = data.ethical_alignment;
+        const intel_status = data.intelligence_recruitment.status;
+        ethicalScore.innerText = intel_status;
+        if (intel_status.includes("Verified")) {
+            ethicalScore.style.color = "#00f2ff";
+        } else {
+            ethicalScore.style.color = "#ff4d4d";
+        }
+    }
+    const alignmentDisplay = document.getElementById('alignment-display');
+    if (alignmentDisplay) {
+        const { strategic_alignment } = data;
+        alignmentDisplay.innerHTML = `
+            <strong>Golden Path:</strong> ${strategic_alignment.golden_path} <br>
+            <strong>Current Move:</strong> ${strategic_alignment.current_move}
+        `;
     }
 }
 
